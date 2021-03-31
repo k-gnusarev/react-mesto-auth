@@ -9,3 +9,9 @@
 
   color: #fff;
 }
+
+@media all and (max-width: 420px) {
+  .start-section__heading {
+    margin-bottom: 40px;
+  }
+}

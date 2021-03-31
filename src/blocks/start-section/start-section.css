@@ -9,3 +9,9 @@
   width: 100%;
   max-width: 358px;
 }
+
+@media all and (max-width: 420px) {
+  .start-section {
+    max-width: 260px;
+  }
+}

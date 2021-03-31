@@ -18,3 +18,11 @@
 .button_style_white:hover {
   background: rgba(255,255,255,.85);
 }
+
+@media all and (max-width: 420px) {
+  .button_style_white {
+    font-size: 16px;
+    line-height: 1.18;
+    height: 46px;
+  }
+}
