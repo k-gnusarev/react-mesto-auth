@@ -1,0 +1,11 @@
+.start-section__heading {  
+  padding: 0;
+  margin: 0;
+  margin-bottom: 50px;
+  
+  font-weight: 900;
+  font-size: 24px;
+  line-height: 1.21;
+
+  color: #fff;
+}

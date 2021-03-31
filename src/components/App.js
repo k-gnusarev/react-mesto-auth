@@ -1,5 +1,6 @@
 import '../index.css';
 import React from 'react';
+import { Route, Switch, Redirect } from 'react-router-dom';
 import Header from './Header';
 import Main from './Main';
 import Footer from './Footer';
@@ -9,6 +10,8 @@ import api from '../utils/api';
 import EditProfilePopup from './EditProfilePopup';
 import EditAvatarPopup from './EditAvatarPopup';
 import AddPlacePopup from './AddPlacePopup';
+import Login from './Login';
+import Register from './Register';
 
 function App() {
   const [currentUser, setCurrentUser] = React.useState();
@@ -17,6 +20,10 @@ function App() {
   const [isEditProfileActive, setEditProfileActive] = React.useState(false);
   const [isAddPlaceActive, setAddPlaceActive] = React.useState(false);
   const [selectedCard, setSelectedCard] = React.useState(null);
+
+  // СОСТОЯНИЕ ДЛЯ АВТОРИЗОВАННОГО ПОЛЬЗОВАТЕЛЯ
+
+  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
 
   React.useEffect(() => {
     api.getUserData()
@@ -142,15 +149,25 @@ function App() {
     <CurrentUserContext.Provider value={currentUser}>
       <div className="page">
         <Header />
-        {currentUser && <Main  // "currentUser &&" чтобы компонент загрузился после загрузки контекста
-          onUpdateAvatar={handleUpdateAvatarClick}
-          onEditProfile={handleEditProfileClick}
-          onAddPlace={handleAddPlaceClick}
-          onCardClick={handleCardClick}
-          onCardLike={handleCardLike}
-          onCardDelete={handleCardDelete}
-          cards={cards}
-        />}
+        <Switch>
+          <Route path='/main'>
+            {currentUser && <Main  // "currentUser &&" чтобы компонент загрузился после загрузки контекста
+              onUpdateAvatar={handleUpdateAvatarClick}
+              onEditProfile={handleEditProfileClick}
+              onAddPlace={handleAddPlaceClick}
+              onCardClick={handleCardClick}
+              onCardLike={handleCardLike}
+              onCardDelete={handleCardDelete}
+              cards={cards}
+            />}
+          </Route>
+          <Route path='/sign-in'>
+            <Login />
+          </Route>
+          <Route path='/sign-up'>
+            <Register />
+          </Route>
+        </Switch>
         <Footer />
         {currentUser && <EditProfilePopup
           isActive={isEditProfileActive}

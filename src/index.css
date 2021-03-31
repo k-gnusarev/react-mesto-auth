@@ -25,6 +25,7 @@
 /* общий стиль для кнопок */
 
 @import url(./blocks/button/button.css);
+@import url(./blocks/button/_style/button_style_white.css);
 
 /* секция профиля */
 
@@ -78,3 +79,10 @@
 @import url(./blocks/popup/__form-error/popup__form-error.css);
 @import url(./blocks/popup/__form-error/_active/popup__form-error_active.css);
 @import url(./blocks/popup/__input/_state/popup__input_state_error.css);
+
+/* регистрация и вход */
+
+@import url(./blocks/start-section/start-section.css);
+@import url(./blocks/start-section/__input/start-section__input.css);
+@import url(./blocks/start-section/__form/start-section__form.css);
+@import url(./blocks/start-section/__heading/start-section__heading.css);
