@@ -12,6 +12,8 @@ import EditAvatarPopup from './EditAvatarPopup';
 import AddPlacePopup from './AddPlacePopup';
 import Login from './Login';
 import Register from './Register';
+import ProtectedRoute from './ProtectedRoute';
+import * as Auth from '../utils/auth.js';
 
 function App() {
   const [currentUser, setCurrentUser] = React.useState();
@@ -148,25 +150,30 @@ function App() {
   return (
     <CurrentUserContext.Provider value={currentUser}>
       <div className="page">
-        <Header />
+        <Header
+          isLoggedIn={isLoggedIn} />
         <Switch>
-          <Route path='/main'>
-            {currentUser && <Main  // "currentUser &&" чтобы компонент загрузился после загрузки контекста
-              onUpdateAvatar={handleUpdateAvatarClick}
-              onEditProfile={handleEditProfileClick}
-              onAddPlace={handleAddPlaceClick}
-              onCardClick={handleCardClick}
-              onCardLike={handleCardLike}
-              onCardDelete={handleCardDelete}
-              cards={cards}
-            />}
-          </Route>
+          {currentUser && <ProtectedRoute
+            path='/main'
+            isLoggedIn={isLoggedIn}
+            component={Main}
+            onUpdateAvatar={handleUpdateAvatarClick}
+            onEditProfile={handleEditProfileClick}
+            onAddPlace={handleAddPlaceClick}
+            onCardClick={handleCardClick}
+            onCardLike={handleCardLike}
+            onCardDelete={handleCardDelete}
+            cards={cards}>
+          </ProtectedRoute>}
           <Route path='/sign-in'>
             <Login />
           </Route>
           <Route path='/sign-up'>
             <Register />
           </Route>
+          <Route exact path="/">
+            {isLoggedIn ? <Redirect to="/main" /> : <Redirect to="/sign-in" />}
+          </Route> 
         </Switch>
         <Footer />
         {currentUser && <EditProfilePopup
