@@ -8,17 +8,6 @@ export const register = (email, password) => {
     },
     body: JSON.stringify({email, password})
   })
-  .then((response) => {
-    try {
-      if (response.status === 200){
-        return response.json();
-      }
-    } catch(e){
-      return (e)
-    }
-  })
-    .then(res => res.ok ? res.json() : Promise.reject(`Ошибка: ${res.status}`))
-  .catch((err) => console.log(err));
 };
 
 export const login = (email, password) => {
@@ -29,8 +18,8 @@ export const login = (email, password) => {
     },
     body: JSON.stringify({email, password})
   })
-  .then((response) => {
-    if (response.status === 400) {
+  .then((res) => {
+    if (res.status === 400) {
       throw new Error('Не все поля заполнены');
     } else if (res.status === 401) {
       throw new Error('Email не зарегистрирован');

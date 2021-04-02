@@ -13,7 +13,6 @@ import AddPlacePopup from './AddPlacePopup';
 import Login from './Login';
 import Register from './Register';
 import ProtectedRoute from './ProtectedRoute';
-import * as Auth from '../utils/auth.js';
 
 function App() {
   const [currentUser, setCurrentUser] = React.useState();
