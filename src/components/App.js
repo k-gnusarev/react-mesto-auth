@@ -45,10 +45,11 @@ function App() {
       .catch((err) => console.log(err));
   }, []);
 
+  // ПРОВЕРКА ВАЛИДНОСТИ ТОКЕНА 
   
   React.useEffect(() => {
-    const jwt = localStorage.getItem('jwt');
-    if (jwt) {
+    if (localStorage.getItem('jwt')) {
+      const jwt = localStorage.getItem('jwt');
       Auth.getContent(jwt)
         .then((res) => {
           setIsLoggedIn(true);
@@ -197,8 +198,12 @@ function App() {
           setTimeout(closePopups, 2000);
         }
 
-        if (res.status === 400) {
-          console.log('Пользователь с данным адресом уже зарегистрирован!')
+        if (res.status === 400) {          
+          handleInfoTooltipMessage({
+            icon: failIcon,
+            text: 'Пользователь с данным адресом уже зарегистрирован!'})
+          handleInfoTooltipActive();
+          setTimeout(closePopups, 2000);
         }
       })
       .catch((err)=> {
@@ -207,7 +212,7 @@ function App() {
           text: 'Неизвестная ошибка. См. консоль'
         })
         handleInfoTooltipMessage();
-        setTimeout(closePopups, 2500);
+        setTimeout(closePopups, 2000);
         console.log(err)
       })
   }
@@ -262,7 +267,7 @@ function App() {
         <Switch>
           {currentUser && <ProtectedRoute
             exact
-            path='/main'
+            path='/'
             isLoggedIn={isLoggedIn}
             component={Main}
             onUpdateAvatar={handleUpdateAvatarClick}

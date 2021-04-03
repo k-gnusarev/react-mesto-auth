@@ -1,5 +1,4 @@
 import React from 'react';
-import * as Auth from '../utils/auth.js';
 
 function Login(props) {
   // управление полями ввода
@@ -22,8 +21,7 @@ function Login(props) {
     const email = emailValue;
     const password = passwordValue;
     props.onLogin(email, password)
-  }
-  
+  }  
 
   return (
     <section className="start-section">
