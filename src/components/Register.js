@@ -1,11 +1,9 @@
-import React, { useState } from 'react';
-import { Link, useHistory } from 'react-router-dom';
-import * as Auth from '../utils/auth.js';
+import React from 'react';
+import { Link } from 'react-router-dom';
 
-function Register() {
+function Register(props) {
   const [emailValue, setEmailValue] = React.useState('');
   const [passwordValue, setPasswordValue] = React.useState('');
-  const history = useHistory();
 
   function handleEmailChange(evt) {
     setEmailValue(evt.target.value);
@@ -19,15 +17,7 @@ function Register() {
     e.preventDefault();
     const email = emailValue;
     const password = passwordValue;
-    Auth.register(email, password)
-      .then(res => {
-        if(res) {
-          console.log(res);
-          history.push('/sign-in');
-        } else {
-          console.log('что то пошло не так');
-        }
-      });
+    props.onRegister(email, password);
   }
 
   return (    

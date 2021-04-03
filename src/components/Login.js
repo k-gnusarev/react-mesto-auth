@@ -1,7 +1,9 @@
 import React from 'react';
 import * as Auth from '../utils/auth.js';
 
-function Login() {
+function Login(props) {
+  // управление полями ввода
+
   const [emailValue, setEmailValue] = React.useState('');
   const [passwordValue, setPasswordValue] = React.useState('');
 
@@ -13,17 +15,13 @@ function Login() {
     setPasswordValue(evt.target.value);
   }
 
+  // передача учётных данных
+
   function handleSubmit(e) {
     e.preventDefault();
     const email = emailValue;
     const password = passwordValue;
-    Auth.login(email, password)
-      .then(res => {
-        if(res) {
-          console.log(res);
-        }
-      }
-    )
+    props.onLogin(email, password)
   }
   
 

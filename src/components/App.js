@@ -1,6 +1,6 @@
 import '../index.css';
 import React from 'react';
-import { Route, Switch, Redirect } from 'react-router-dom';
+import { Route, Switch, Redirect, useHistory } from 'react-router-dom';
 import Header from './Header';
 import Main from './Main';
 import Footer from './Footer';
@@ -12,19 +12,30 @@ import EditAvatarPopup from './EditAvatarPopup';
 import AddPlacePopup from './AddPlacePopup';
 import Login from './Login';
 import Register from './Register';
+import InfoTooltip from './InfoTooltip';
 import ProtectedRoute from './ProtectedRoute';
+import checkIcon from '../images/check-icon.svg';
+import failIcon from '../images/fail-icon.svg';
+import * as Auth from '../utils/auth.js';
 
 function App() {
   const [currentUser, setCurrentUser] = React.useState();
   // УПРАВЛЕНИЕ ПОПАПАМИ
   const [isUpdateAvatarActive, setUpdateAvatarActive] = React.useState(false);
   const [isEditProfileActive, setEditProfileActive] = React.useState(false);
-  const [isAddPlaceActive, setAddPlaceActive] = React.useState(false);
+  const [isAddPlaceActive, setAddPlaceActive] = React.useState(false);  
+  const [isInfoTooltipActive, setInfoTooltipActive] = React.useState(false);
+  
+  // сообщение для информационного окна
+  const [message, setMessage] = React.useState({ icon: '', text: '' });
+  
   const [selectedCard, setSelectedCard] = React.useState(null);
 
   // СОСТОЯНИЕ ДЛЯ АВТОРИЗОВАННОГО ПОЛЬЗОВАТЕЛЯ
 
   const [isLoggedIn, setIsLoggedIn] = React.useState(false);
+  const [email, setEmail] = React.useState('');
+  const history = useHistory();
 
   React.useEffect(() => {
     api.getUserData()
@@ -33,6 +44,20 @@ function App() {
       })
       .catch((err) => console.log(err));
   }, []);
+
+  
+  React.useEffect(() => {
+    const jwt = localStorage.getItem('jwt');
+    if (jwt) {
+      Auth.getContent(jwt)
+        .then((res) => {
+          setIsLoggedIn(true);
+          setEmail(res.data.email);
+          history.push('/');
+        })
+        .catch(err => console.log(err));
+    }
+  }, [history]);
 
   // Открытие попапов
   function handleUpdateAvatarClick() {
@@ -51,12 +76,24 @@ function App() {
     setSelectedCard(card);
   }
 
+  function handleInfoTooltipActive() {
+    setInfoTooltipActive(true);
+  }
+
+  function handleInfoTooltipMessage({ icon, text }) {
+    setMessage({
+      icon: icon,
+      text: text
+    });
+  }
+
   // Закрытие попапов
 
   function closePopups() {
     setUpdateAvatarActive(false);
     setEditProfileActive(false);
     setAddPlaceActive(false);
+    setInfoTooltipActive(false);
     setSelectedCard(null);
   }
 
@@ -146,13 +183,85 @@ function App() {
       .catch((err) => console.log(err));
   }
 
+  // РЕГИСТРАЦИЯ И АВТОРИЗАЦИЯ
+
+  function handleRegister(email, password) {
+    Auth.register(email, password)
+      .then((res) => {
+        if (res.status === 201) {
+          handleInfoTooltipMessage({
+            icon: checkIcon,
+            text: 'Учётная запись зарегистрирована!'})
+          handleInfoTooltipActive();
+          setTimeout(history.push, 2500, '/sign-in');
+          setTimeout(closePopups, 2000);
+        }
+
+        if (res.status === 400) {
+          console.log('Пользователь с данным адресом уже зарегистрирован!')
+        }
+      })
+      .catch((err)=> {
+        handleInfoTooltipMessage({
+          icon: failIcon,
+          text: 'Неизвестная ошибка. См. консоль'
+        })
+        handleInfoTooltipMessage();
+        setTimeout(closePopups, 2500);
+        console.log(err)
+      })
+  }
+
+  function handleLogin(email, password) {
+    Auth.login(email, password)
+      .then((data) => {
+        if (!data) {
+          throw new Error('Неизвестная ошибка');
+        }
+
+        Auth.getContent(data)
+          .then((res) => {
+            setEmail(res.data.email);
+          })
+          .catch(err => console.log(err));
+
+        setIsLoggedIn(true);
+        handleInfoTooltipMessage({
+          icon: checkIcon,
+          text: 'Вы успешно авторизовались!'
+        })
+
+        handleInfoTooltipActive();
+        setTimeout(history.push, 2500, "/");
+        setTimeout(closePopups, 2000);
+      })
+      .catch((err) => {
+        handleInfoTooltipMessage({
+          icon: failIcon,
+          text: 'Неизвестная ошибка! См. консоль'})
+        handleInfoTooltipActive();
+        console.log(err)
+      })
+  }
+
+  function handleLogout() {
+    setIsLoggedIn(false);
+    localStorage.removeItem('jwt');
+    setEmail('');
+    history.push('/sign-in');
+  }
+
   return (
     <CurrentUserContext.Provider value={currentUser}>
       <div className="page">
         <Header
-          isLoggedIn={isLoggedIn} />
+          isLoggedIn={isLoggedIn}
+          email={email}
+          onLogout={handleLogout}
+        />
         <Switch>
           {currentUser && <ProtectedRoute
+            exact
             path='/main'
             isLoggedIn={isLoggedIn}
             component={Main}
@@ -165,10 +274,14 @@ function App() {
             cards={cards}>
           </ProtectedRoute>}
           <Route path='/sign-in'>
-            <Login />
+            <Login
+              onLogin={handleLogin}
+            />
           </Route>
           <Route path='/sign-up'>
-            <Register />
+            <Register
+              onRegister={handleRegister}
+            />
           </Route>
           <Route exact path="/">
             {isLoggedIn ? <Redirect to="/main" /> : <Redirect to="/sign-in" />}
@@ -194,6 +307,12 @@ function App() {
           card={selectedCard}
           onClose={closePopups}
         />
+        {currentUser && <InfoTooltip
+          isActive={isInfoTooltipActive} 
+          onClose={closePopups} 
+          message={message}
+        /> 
+        }
       </div>
     </CurrentUserContext.Provider>
   );

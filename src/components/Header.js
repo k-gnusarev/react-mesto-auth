@@ -17,7 +17,7 @@ function Header(props) {
             <Link
               className="header__link header__link_type_signout"
               to=""
-              onClick={props.handleSignOut}
+              onClick={props.onLogout}
             >Выйти</Link>
           </>
         ) : (
