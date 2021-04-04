@@ -7,6 +7,7 @@ import Footer from './Footer';
 import ImagePopup from './ImagePopup';
 import { CurrentUserContext } from '../contexts/CurrentUserContext';
 import api from '../utils/api';
+import * as Auth from '../utils/auth.js';
 import EditProfilePopup from './EditProfilePopup';
 import EditAvatarPopup from './EditAvatarPopup';
 import AddPlacePopup from './AddPlacePopup';
@@ -16,7 +17,6 @@ import InfoTooltip from './InfoTooltip';
 import ProtectedRoute from './ProtectedRoute';
 import checkIcon from '../images/check-icon.svg';
 import failIcon from '../images/fail-icon.svg';
-import * as Auth from '../utils/auth.js';
 
 function App() {
   const [currentUser, setCurrentUser] = React.useState();
@@ -144,7 +144,8 @@ function App() {
       .then(() => {
         const newCards = cards.filter(c => c._id !== card._id);
         setCards(newCards);
-      });
+      })
+      .catch(err => console.log(err));
   }
 
   // ОБНОВЛЕНИЕ ИНФОРМАЦИИ О ПОЛЬЗОВАТЕЛЕ
@@ -195,7 +196,6 @@ function App() {
             text: 'Учётная запись зарегистрирована!'})
           handleInfoTooltipActive();
           setTimeout(history.push, 2500, '/sign-in');
-          setTimeout(closePopups, 2000);
         }
 
         if (res.status === 400) {          
@@ -203,7 +203,6 @@ function App() {
             icon: failIcon,
             text: 'Пользователь с данным адресом уже зарегистрирован!'})
           handleInfoTooltipActive();
-          setTimeout(closePopups, 2000);
         }
       })
       .catch((err)=> {
@@ -212,7 +211,6 @@ function App() {
           text: 'Неизвестная ошибка. См. консоль'
         })
         handleInfoTooltipMessage();
-        setTimeout(closePopups, 2000);
         console.log(err)
       })
   }
@@ -224,12 +222,7 @@ function App() {
           throw new Error('Неизвестная ошибка');
         }
 
-        Auth.getContent(data)
-          .then((res) => {
-            setEmail(res.data.email);
-          })
-          .catch(err => console.log(err));
-
+        setEmail(email);
         setIsLoggedIn(true);
         handleInfoTooltipMessage({
           icon: checkIcon,
@@ -238,7 +231,6 @@ function App() {
 
         handleInfoTooltipActive();
         setTimeout(history.push, 2500, "/");
-        setTimeout(closePopups, 2000);
       })
       .catch((err) => {
         handleInfoTooltipMessage({
@@ -265,7 +257,7 @@ function App() {
           onLogout={handleLogout}
         />
         <Switch>
-          {currentUser && <ProtectedRoute
+          <ProtectedRoute
             exact
             path='/'
             isLoggedIn={isLoggedIn}
@@ -277,7 +269,7 @@ function App() {
             onCardLike={handleCardLike}
             onCardDelete={handleCardDelete}
             cards={cards}>
-          </ProtectedRoute>}
+          </ProtectedRoute>
           <Route path='/sign-in'>
             <Login
               onLogin={handleLogin}
@@ -288,8 +280,8 @@ function App() {
               onRegister={handleRegister}
             />
           </Route>
-          <Route exact path="/">
-            {isLoggedIn ? <Redirect to="/main" /> : <Redirect to="/sign-in" />}
+          <Route exact path="*">
+            {isLoggedIn ? <Redirect to="/" /> : <Redirect to="/sign-in" />}
           </Route> 
         </Switch>
         <Footer />
